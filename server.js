@@ -32,8 +32,8 @@ app.use(express.json());
 app.use(rateLimiter);
 
 // Serve Swagger API documentation at /api-docs
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use('/api-docs', express.static(path.join(__dirname, 'node_modules', 'swagger-ui-dist')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use('/api-docs', express.static(path.join(__dirname, 'node_modules', 'swagger-ui-dist')));
 
 
 // Example logging usage
