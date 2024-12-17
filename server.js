@@ -17,7 +17,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load the Swagger YAML file
-const swaggerDocument = YAML.load(path.join(__dirname, 'swagger', '/swagger.yaml'));
+// const swaggerDocument = YAML.load(path.join(__dirname, 'swagger', '/swagger.yaml'));
+const swaggerDocument = YAML.load(path.join(__dirname, 'public', 'swagger.yaml'));
 
 dotenv.config();
 const app = express();
@@ -31,7 +32,8 @@ app.use(express.json());
 app.use(rateLimiter);
 
 // Serve Swagger API documentation at /api-docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', express.static(path.join(__dirname, 'node_modules', 'swagger-ui-dist')));
 
 
 // Example logging usage

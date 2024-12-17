@@ -1,0 +1,305 @@
+openapi: 3.0.0
+info:
+  title: User-Admin API
+  description: API documentation for user sign-up, email verification, and admin management.
+  version: 1.0.0
+servers:
+  - url: https://paulelliott.vercel.app/api
+    description: Local server
+
+paths:
+  /users/signup:
+    post:
+      summary: User Sign-Up
+      description: Register a new user with email verification.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  example: johndoe@gmail.com
+                country:
+                  type: string
+                  example: Canada
+                password:
+                  type: string
+                  example: user123
+      responses:
+        201:
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully. Please check your email for verification.
+        400:
+          description: Validation error or email already registered.
+        500:
+          description: Internal server error.
+
+  /users/verify/{token}:
+    get:
+      summary: Verify Email
+      description: Verify a user's email using a unique token.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Unique verification token.
+      responses:
+        200:
+          description: Email verified successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verified successfully.
+        400:
+          description: Invalid or expired verification token.
+        500:
+          description: Internal server error.
+
+  /admin/add-admin:
+    post:
+      summary: Add Admin
+      description: Allow an existing admin to create another admin.
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: New Admin
+                email:
+                  type: string
+                  example: admin@gmail.com
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        201:
+          description: Admin added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Admin added successfully.
+                  admin:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: New Admin
+                      email:
+                        type: string
+                        example: newadmin@example.com
+                      _id:
+                        type: string
+                        example: 63f91df4b5c0c123456789ef
+                      createdAt:
+                        type: string
+                        example: 2024-12-17T08:00:00.000Z
+        400:
+          description: Admin with this email already exists.
+        401:
+          description: Unauthorized access.
+        500:
+          description: Internal server error.
+  
+  /post:
+    post:
+      summary: Create a new post
+      requestBody:
+        description: Post data to create a new post.
+        tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      requestBody:
+          required: true
+          content:
+           application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  example: '60d21b4967d0d8992e610c85'
+                title:
+                  type: string
+                  example: 'My First Post'
+                content:
+                  type: string
+                  example: 'This is the content of my first post.'
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '500':
+          description: Error creating post
+
+  /post/{id}:
+    put:
+      summary: Edit an existing post
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the post to edit
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated post data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 'Updated Title'
+                content:
+                  type: string
+                  example: 'Updated content of the post.'
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+        '500':
+          description: Error updating post
+
+    delete:
+      summary: Delete a post
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the post to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post deleted successfully
+        '404':
+          description: Post not found
+        '500':
+          description: Error deleting post
+
+  /post/{id}/comments:
+    post:
+      summary: Add a comment to a post
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the post to add a comment to
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Comment data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  example: '60d21b4967d0d8992e610c85'
+                comment:
+                  type: string
+                  example: 'This is a comment on the post.'
+      responses:
+        '200':
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+        '500':
+          description: Error adding comment
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Post:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '60d21b4967d0d8992e610c85'
+        userId:
+          type: string
+          example: '60d21b4967d0d8992e610c85'
+        title:
+          type: string
+          example: 'My First Post'
+        content:
+          type: string
+          example: 'This is the content of my first post.'
+        comments:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                example: '60d21b4967d0d8992e610c85'
+              comment:
+                type: string
+                example: 'This is a comment.'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-12-17T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-12-17T12:00:00Z'    
