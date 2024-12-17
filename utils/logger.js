@@ -1,43 +1,21 @@
-import { createLogger, format, transports } from 'winston';
-import 'winston-daily-rotate-file';
+import winston from 'winston';
+// Import 'winston-daily-rotate-file' only if local logs are needed.
 
-const { combine, timestamp, printf, colorize } = format;
-
-// Log format
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} [${level.toUpperCase()}]: ${message}`;
-});
-
-// Daily Rotate File Transport
-const dailyRotateFileTransport = new transports.DailyRotateFile({
-  filename: 'logs/application-%DATE%.log', // Logs will rotate daily
-  datePattern: 'YYYY-MM-DD',
-  zippedArchive: true, // Compress old logs
-  maxSize: '20m', // Max log file size
-  maxFiles: '14d', // Keep logs for 14 days
-});
-
-export const logger = createLogger({
-  level: 'info', // Default log level
-  format: combine(
-    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    logFormat
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
   ),
   transports: [
-    new transports.Console({ format: combine(colorize(), logFormat) }), // Logs to console with color
-    dailyRotateFileTransport, // Logs to daily rotating file
+    // Remove or replace this with a Console or Cloud logging transport
+    // new winston.transports.DailyRotateFile({
+    //   filename: 'logs/%DATE%.log',
+    //   datePattern: 'YYYY-MM-DD',
+    //   maxFiles: '14d',
+    // }),
+    new winston.transports.Console() // Logs directly to the Vercel console
   ],
 });
-
-// Log uncaught exceptions and unhandled rejections
-logger.exceptions.handle(
-  new transports.Console(),
-  dailyRotateFileTransport
-);
-
-logger.rejections.handle(
-  new transports.Console(),
-  dailyRotateFileTransport
-);
 
 export default logger;
