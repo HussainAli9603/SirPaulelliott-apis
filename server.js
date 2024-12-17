@@ -13,18 +13,14 @@ import YAML from 'yamljs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const app = express();
-
 const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, 'swagger')));
+const __dirname = path.dirname(__filename);
 
 // Load the Swagger YAML file
-const swaggerDocument = YAML.load('./swagger/swagger.yaml');
+const swaggerDocument = YAML.load(path.join(__dirname, 'swagger', '/swagger.yaml'));
 
 dotenv.config();
+const app = express();
 
 // Database Connection
 connectDB();
